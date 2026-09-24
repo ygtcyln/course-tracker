@@ -103,9 +103,11 @@
     position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 14px 14px 14px 18px; margin-bottom: 12px;
     border-left: 4px solid var(--primary);
+    transition: opacity .25s, border-left-color .25s;
   }
   .card.homework { border-left-color: var(--homework); background: var(--homework-soft); }
-  .card.done-review { border-left-color: var(--done); }
+  .card.done { border-left-color: var(--line); opacity: .5; }
+  .card.done:hover, .card.done:focus-within { opacity: .85; }
 
   .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .card .time { font-size: .82rem; color: var(--ink-dim); }
@@ -135,6 +137,8 @@
     opacity: 0; transition: opacity .3s;
   }
   .savedflag.show { opacity: 1; }
+
+  #dayItems { display: flex; flex-direction: column; }
 
   .empty {
     text-align: center; padding: 34px 16px; color: var(--ink-dim);
@@ -314,11 +318,12 @@
     } catch (e) { /* silent: next successful save will reconcile */ }
   }
 
-  function buildCard(item, dateIso) {
+  function buildCard(item, dateIso, index) {
     const saved = dayCache[item.id] || {};
     const card = document.createElement("div");
     const isHomework = item.kind === "homework";
-    card.className = "card" + (isHomework ? " homework" : (saved.done ? " done-review" : ""));
+    card.className = "card" + (isHomework ? " homework" : "") + (saved.done ? " done" : "");
+    card.style.order = (saved.done ? 1000 : 0) + index;
 
     const noteLabel = isHomework ? "Not (opsiyonel)" : "Bugün hangi konuyu tekrar ettin?";
     const checkLabel = isHomework ? "Ödevi yükledim" : "Tekrar edildi";
@@ -335,7 +340,8 @@
     const chk = card.querySelector("input");
     const note = card.querySelector("textarea");
     chk.addEventListener("change", () => {
-      card.classList.toggle("done-review", chk.checked && !isHomework);
+      card.classList.toggle("done", chk.checked);
+      card.style.order = (chk.checked ? 1000 : 0) + index;
       saveEntry(item, dateIso, chk.checked, note.value, card);
     });
     let debounceT;
@@ -373,7 +379,7 @@
 
     const dateIso = isoDate(selectedDate);
     await loadDayCache(dateIso);
-    SCHEDULE[key].items.forEach(item => holder.appendChild(buildCard(item, dateIso)));
+    SCHEDULE[key].items.forEach((item, index) => holder.appendChild(buildCard(item, dateIso, index)));
   }
 
   document.getElementById("prevDay").addEventListener("click", () => {
