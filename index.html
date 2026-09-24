@@ -103,11 +103,11 @@
     position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
     padding: 14px 14px 14px 18px; margin-bottom: 12px;
     border-left: 4px solid var(--primary);
-    transition: opacity .25s, border-left-color .25s;
+    transition: opacity .25s, filter .25s, border-left-color .25s;
   }
   .card.homework { border-left-color: var(--homework); background: var(--homework-soft); }
-  .card.done { border-left-color: var(--line); opacity: .5; }
-  .card.done:hover, .card.done:focus-within { opacity: .85; }
+  .card.done { border-left-color: var(--line); opacity: .38; filter: grayscale(.5) saturate(.6); }
+  .card.done:hover { opacity: .6; filter: grayscale(.2); }
 
   .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .card .time { font-size: .82rem; color: var(--ink-dim); }
