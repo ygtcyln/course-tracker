@@ -93,6 +93,7 @@
     width: 34px; height: 34px; border-radius: var(--radius); cursor: pointer; font-size: 1rem; flex: none;
   }
   .datenav button.arrow:hover { border-color: var(--primary); color: var(--primary); }
+  .datenav button.arrow:disabled { opacity: .35; cursor: default; border-color: var(--line); color: var(--ink); }
   .todaybtn {
     display: block; margin: -8px auto 18px; font: inherit; font-size: .78rem; color: var(--primary);
     background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
@@ -210,7 +211,7 @@
 
   const SCHEDULE = {
     pzt: { label: "Pazartesi", items: [
-      { id: "pzt-0840-cs102", time: "08:40–10:30", code: "CS 102.A", name: "Nesneye Dayalı Programlama", room: "1. Bina (EF), 2. Kat, Oda 245", instructor: "Kübra Kalkan Çakmakcı", kind: "homework" },
+      { id: "pzt-0840-cs102", time: "08:40–10:30", code: "CS 102.A", name: "Nesneye Dayalı Programlama", room: "1. Bina (EF), 2. Kat, Oda 245", instructor: "Kübra Kalkan Çakmakcı", kind: "review" },
       { id: "pzt-1240-cs102", time: "12:40–14:30", code: "CS 102.A", name: "Nesneye Dayalı Programlama", room: "1. Bina (EF), 2. Kat, Oda 245", instructor: "Kübra Kalkan Çakmakcı", kind: "review" },
       { id: "pzt-1640-cs112", time: "16:40–18:30", code: "CS 112.A", name: "Ayrık Matematik", room: "1. Bina (EF), 2. Kat, Oda 237", instructor: "Hasan Fehmi Ateş", kind: "review" },
       { id: "pzt-2040-sec201", time: "20:40", code: "SEC 201.A", name: "Sektörel Hazırlık", room: "Ödev yükleme saati", instructor: "Gülizar Atalay Haznedar", kind: "homework" },
@@ -245,6 +246,7 @@
     return d.getDate() + " " + MONTH_TR[d.getMonth()] + " " + d.getFullYear();
   }
 
+  const SEMESTER_START = new Date(2026, 8, 21); // dersler 21 Eylül'de başladı
   let selectedDate = new Date();
   let dayCache = {}; // slotId -> {done, note}
   let db = null;
@@ -345,6 +347,7 @@
 
   async function renderToday() {
     const dow = selectedDate.getDay();
+    document.getElementById("prevDay").disabled = isoDate(selectedDate) <= isoDate(SEMESTER_START);
     document.getElementById("curWeekday").textContent = WEEKDAY_TR[dow];
     document.getElementById("curDaynum").textContent = fmtLong(selectedDate);
 
@@ -370,7 +373,10 @@
     SCHEDULE[key].items.forEach(item => holder.appendChild(buildCard(item, dateIso)));
   }
 
-  document.getElementById("prevDay").addEventListener("click", () => { selectedDate.setDate(selectedDate.getDate() - 1); renderToday(); });
+  document.getElementById("prevDay").addEventListener("click", () => {
+    if (isoDate(selectedDate) <= isoDate(SEMESTER_START)) return;
+    selectedDate.setDate(selectedDate.getDate() - 1); renderToday();
+  });
   document.getElementById("nextDay").addEventListener("click", () => { selectedDate.setDate(selectedDate.getDate() + 1); renderToday(); });
   document.getElementById("jumpToday").addEventListener("click", () => { selectedDate = new Date(); renderToday(); });
 
