@@ -256,6 +256,7 @@
   const SEMESTER_START = new Date(2026, 8, 21); // dersler 21 Eylül'de başladı
   let selectedDate = new Date();
   let dayCache = {}; // slotId -> {done, note}
+  let renderSeq = 0; // guards against overlapping renderToday() calls interleaving
   let db = null;
   let dbReady = false;
 
@@ -355,6 +356,7 @@
   }
 
   async function renderToday() {
+    const mySeq = ++renderSeq;
     const dow = selectedDate.getDay();
     document.getElementById("prevDay").disabled = isoDate(selectedDate) <= isoDate(SEMESTER_START);
     document.getElementById("curWeekday").textContent = WEEKDAY_TR[dow];
@@ -362,9 +364,10 @@
 
     const key = DOW_KEY[dow];
     const holder = document.getElementById("dayItems");
-    holder.innerHTML = "";
 
     if (!key) {
+      if (mySeq !== renderSeq) return;
+      holder.innerHTML = "";
       const empty = document.createElement("div");
       empty.className = "empty";
       empty.innerHTML = "Bu gün ders yok, tekrar edecek bir şey görünmüyor.<br><button id='goMonday'>Pazartesiye git</button>";
@@ -379,6 +382,8 @@
 
     const dateIso = isoDate(selectedDate);
     await loadDayCache(dateIso);
+    if (mySeq !== renderSeq) return; // a newer day was selected before this one finished loading
+    holder.innerHTML = "";
     SCHEDULE[key].items.forEach((item, index) => holder.appendChild(buildCard(item, dateIso, index)));
   }
 
