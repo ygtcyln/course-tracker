@@ -150,7 +150,10 @@
     padding: 9px 12px; font-size: .8rem; color: var(--ink-dim); margin-bottom: 16px;
   }
 
-  .weekgrid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .weekgrid { display: grid; gap: 10px; grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 640px) { .weekgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .weekgrid { grid-template-columns: 1fr; } }
+  .daycol { min-width: 0; }
   .daycol h3 { font-size: .92rem; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
   .daycol .item { font-size: .82rem; padding: 7px 0; border-bottom: 1px dashed var(--line); }
   .daycol .item:last-child { border-bottom: none; }
