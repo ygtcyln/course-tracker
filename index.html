@@ -1,0 +1,426 @@
+<title>Tekrar Defteri</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --ink: #1c2331;
+    --ink-dim: #5b6472;
+    --paper: #eef0ec;
+    --surface: #ffffff;
+    --line: rgba(28,35,49,.14);
+    --primary: #223a5e;
+    --primary-soft: #dfe6f0;
+    --done: #2f7a52;
+    --done-soft: #dcefe2;
+    --pending: #9a7300;
+    --homework: #9c3b23;
+    --homework-soft: #f3ddd3;
+    --radius: 3px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e7e9ee;
+      --ink-dim: #a3acbb;
+      --paper: #12161d;
+      --surface: #1a2029;
+      --line: rgba(231,233,238,.16);
+      --primary: #8fb0e6;
+      --primary-soft: rgba(143,176,230,.16);
+      --done: #57c98a;
+      --done-soft: rgba(87,201,138,.16);
+      --pending: #e0b64a;
+      --homework: #e2825f;
+      --homework-soft: rgba(226,130,95,.16);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e7e9ee;
+    --ink-dim: #a3acbb;
+    --paper: #12161d;
+    --surface: #1a2029;
+    --line: rgba(231,233,238,.16);
+    --primary: #8fb0e6;
+    --primary-soft: rgba(143,176,230,.16);
+    --done: #57c98a;
+    --done-soft: rgba(87,201,138,.16);
+    --pending: #e0b64a;
+    --homework: #e2825f;
+    --homework-soft: rgba(226,130,95,.16);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, sans-serif;
+    padding: 20px 16px 40px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1, h2, h3 { font-family: "IBM Plex Serif", Georgia, serif; text-wrap: balance; margin: 0; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  header.top {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding-bottom: 14px; margin-bottom: 18px; border-bottom: 2px solid var(--ink);
+    flex-wrap: wrap;
+  }
+  header.top h1 { font-size: 1.35rem; letter-spacing: .01em; }
+  header.top .tag { font-size: .72rem; color: var(--ink-dim); letter-spacing: .08em; text-transform: uppercase; }
+
+  nav.tabs { display: flex; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  nav.tabs button {
+    font: inherit; font-family: "IBM Plex Sans", sans-serif; font-weight: 500; font-size: .88rem;
+    background: none; border: none; color: var(--ink-dim); cursor: pointer;
+    padding: 9px 4px 10px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--primary); }
+  nav.tabs button:hover { color: var(--ink); }
+
+  section[hidden] { display: none !important; }
+
+  .datenav {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .datenav .label { text-align: center; flex: 1; min-width: 0; }
+  .datenav .weekday { font-size: 1.08rem; font-weight: 600; font-family: "IBM Plex Serif", serif; }
+  .datenav .daynum { font-size: .78rem; color: var(--ink-dim); }
+  .datenav button.arrow {
+    font: inherit; background: var(--surface); border: 1px solid var(--line); color: var(--ink);
+    width: 34px; height: 34px; border-radius: var(--radius); cursor: pointer; font-size: 1rem; flex: none;
+  }
+  .datenav button.arrow:hover { border-color: var(--primary); color: var(--primary); }
+  .todaybtn {
+    display: block; margin: -8px auto 18px; font: inherit; font-size: .78rem; color: var(--primary);
+    background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .card {
+    position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 14px 14px 18px; margin-bottom: 12px;
+    border-left: 4px solid var(--primary);
+  }
+  .card.homework { border-left-color: var(--homework); background: var(--homework-soft); }
+  .card.done-review { border-left-color: var(--done); }
+
+  .card .row1 { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .card .time { font-size: .82rem; color: var(--ink-dim); }
+  .card .course { font-weight: 600; font-size: 1rem; }
+  .card .course .name { font-weight: 400; color: var(--ink-dim); font-size: .88rem; }
+  .card .meta { font-size: .78rem; color: var(--ink-dim); margin-top: 2px; }
+  .card .kicker {
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: var(--homework);
+    font-weight: 600; margin-bottom: 4px;
+  }
+
+  .checkline { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .checkline input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--done); cursor: pointer; }
+  .card.homework .checkline input[type="checkbox"] { accent-color: var(--homework); }
+  .checkline label { font-size: .88rem; cursor: pointer; user-select: none; }
+
+  textarea.note {
+    width: 100%; margin-top: 8px; font: inherit; font-size: .88rem; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 8px 10px; resize: vertical; min-height: 40px;
+  }
+  textarea.note:focus { outline: none; border-color: var(--primary); }
+  textarea.note::placeholder { color: var(--ink-dim); }
+
+  .savedflag {
+    position: absolute; top: 12px; right: 14px; font-size: .7rem; color: var(--done);
+    opacity: 0; transition: opacity .3s;
+  }
+  .savedflag.show { opacity: 1; }
+
+  .empty {
+    text-align: center; padding: 34px 16px; color: var(--ink-dim);
+    border: 1px dashed var(--line); border-radius: var(--radius);
+  }
+  .empty button {
+    display: block; margin: 12px auto 0; font: inherit; font-size: .85rem; color: var(--primary);
+    background: none; border: none; cursor: pointer; text-decoration: underline;
+  }
+
+  .banner {
+    background: var(--primary-soft); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 9px 12px; font-size: .8rem; color: var(--ink-dim); margin-bottom: 16px;
+  }
+
+  .weekgrid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+  .daycol h3 { font-size: .92rem; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .daycol .item { font-size: .82rem; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+  .daycol .item:last-child { border-bottom: none; }
+  .daycol .item .t { color: var(--ink-dim); font-size: .74rem; }
+  .daycol .item.hw { color: var(--homework); }
+
+  .hist-date { font-family: "IBM Plex Mono", monospace; font-size: .78rem; color: var(--ink-dim);
+    margin: 18px 0 6px; letter-spacing: .03em; }
+  .hist-date:first-child { margin-top: 0; }
+  .hist-entry { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--done);
+    border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px; }
+  .hist-entry.hw { border-left-color: var(--homework); }
+  .hist-entry .hc { font-weight: 600; font-size: .9rem; }
+  .hist-entry .hn { font-size: .84rem; color: var(--ink-dim); margin-top: 3px; }
+  .hist-refresh {
+    font: inherit; font-size: .8rem; color: var(--primary); background: none; border: none;
+    cursor: pointer; text-decoration: underline; margin-bottom: 14px;
+  }
+</style>
+
+<header class="top">
+  <h1>Tekrar Defteri</h1>
+  <span class="tag">Güz dönemi programı</span>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button data-tab="today" role="tab" aria-selected="true">Bugün</button>
+  <button data-tab="week" role="tab" aria-selected="false">Haftalık Program</button>
+  <button data-tab="history" role="tab" aria-selected="false">Geçmiş</button>
+</nav>
+
+<section id="tab-today">
+  <div id="db-banner"></div>
+  <div class="datenav">
+    <button class="arrow" id="prevDay" aria-label="Önceki gün">‹</button>
+    <div class="label">
+      <div class="weekday" id="curWeekday"></div>
+      <div class="daynum" id="curDaynum"></div>
+    </div>
+    <button class="arrow" id="nextDay" aria-label="Sonraki gün">›</button>
+  </div>
+  <button class="todaybtn" id="jumpToday">Bugüne dön</button>
+  <div id="dayItems"></div>
+</section>
+
+<section id="tab-week" hidden>
+  <div class="weekgrid" id="weekGrid"></div>
+</section>
+
+<section id="tab-history" hidden>
+  <button class="hist-refresh" id="refreshHist">Yenile</button>
+  <div id="histList"></div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  const SCHEDULE = {
+    pzt: { label: "Pazartesi", items: [
+      { id: "pzt-0840-cs102", time: "08:40–10:30", code: "CS 102.A", name: "Nesneye Dayalı Programlama", room: "1. Bina (EF), 2. Kat, Oda 245", instructor: "Kübra Kalkan Çakmakcı", kind: "homework" },
+      { id: "pzt-1240-cs102", time: "12:40–14:30", code: "CS 102.A", name: "Nesneye Dayalı Programlama", room: "1. Bina (EF), 2. Kat, Oda 245", instructor: "Kübra Kalkan Çakmakcı", kind: "review" },
+      { id: "pzt-1640-cs112", time: "16:40–18:30", code: "CS 112.A", name: "Ayrık Matematik", room: "1. Bina (EF), 2. Kat, Oda 237", instructor: "Hasan Fehmi Ateş", kind: "review" },
+    ]},
+    sal: { label: "Salı", items: [
+      { id: "sal-0940-ee203", time: "09:40–12:30", code: "EE 203.A", name: "Sayısal Sistemler", room: "1. Bina (EF), 2. Kat, Oda 237", instructor: "İlker Hamzaoğlu", kind: "review" },
+      { id: "sal-1240-ee203l", time: "12:40–15:30", code: "EE 203L.A", name: "Sayısal Sistemler (Lab)", room: "1. Bina (EF), 5. Kat, Oda 517", instructor: "İlker Hamzaoğlu", kind: "review" },
+      { id: "sal-1540-cs112", time: "15:40", code: "CS 112.A", name: "Ayrık Matematik", room: "1. Bina (EF)", instructor: "Hasan Fehmi Ateş", kind: "review" },
+      { id: "sal-1640-bus101", time: "16:40–18:30", code: "BUS 101.A", name: "İşletmeye Giriş I", room: "3. Bina (LF), 1. Kat, Oda 150", instructor: "Pelin Atahan Demirciler", kind: "review" },
+    ]},
+    car: { label: "Çarşamba", items: [
+      { id: "car-0940-math211r", time: "09:40", code: "MATH 211R.B", name: "Doğrusal Cebir (Problem Çözümü)", room: "1. Bina (EF)", instructor: "Jülide Miray Özkan", kind: "review" },
+      { id: "car-1540-sec201l", time: "15:40", code: "SEC 201L.B", name: "Sektörel Hazırlık", room: "SCOLA Binası", instructor: "Gülizar Atalay Haznedar", kind: "review" },
+    ]},
+    per: { label: "Perşembe", items: [
+      { id: "per-0840-bus101l", time: "08:40–10:30", code: "BUS 101L.G", name: "İşletmeye Giriş I (Lab)", room: "2. Bina (FEAS), 1. Kat, Oda 103", instructor: "Pelin Atahan Demirciler", kind: "review" },
+      { id: "per-1240-math211", time: "12:40–15:30", code: "MATH 211.B", name: "Doğrusal Cebir", room: "1. Bina (EF), 2. Kat, Oda 241", instructor: "Jülide Miray Özkan", kind: "review" },
+    ]},
+    cum: { label: "Cuma", items: [
+      { id: "cum-1540-hist202", time: "15:40–17:30", code: "HIST 202.A", name: "Atatürk İlkeleri ve İnkılap Tarihi II", room: "SCOLA Binası, 3. Kat, Oda 328", instructor: "Ali Sipahi", kind: "review" },
+    ]},
+  };
+  const DOW_KEY = { 1: "pzt", 2: "sal", 3: "car", 4: "per", 5: "cum" };
+  const DOW_ORDER = ["pzt", "sal", "car", "per", "cum"];
+  const WEEKDAY_TR = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+  const MONTH_TR = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+  function isoDate(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function fmtLong(d) {
+    return d.getDate() + " " + MONTH_TR[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  let selectedDate = new Date();
+  let dayCache = {}; // slotId -> {done, note}
+  let db = null;
+  let dbReady = false;
+
+  // ---- tabs ----
+  const tabButtons = document.querySelectorAll("nav.tabs button");
+  const tabSections = { today: document.getElementById("tab-today"), week: document.getElementById("tab-week"), history: document.getElementById("tab-history") };
+  tabButtons.forEach(btn => btn.addEventListener("click", () => {
+    tabButtons.forEach(b => b.setAttribute("aria-selected", String(b === btn)));
+    Object.entries(tabSections).forEach(([k, el]) => el.hidden = (k !== btn.dataset.tab));
+    if (btn.dataset.tab === "week" && !document.getElementById("weekGrid").childElementCount) renderWeek();
+    if (btn.dataset.tab === "history") loadHistory();
+  }));
+
+  // ---- week reference tab ----
+  function renderWeek() {
+    const grid = document.getElementById("weekGrid");
+    grid.innerHTML = "";
+    DOW_ORDER.forEach(key => {
+      const day = SCHEDULE[key];
+      const col = document.createElement("div");
+      col.className = "daycol";
+      const h3 = document.createElement("h3");
+      h3.textContent = day.label;
+      col.appendChild(h3);
+      day.items.forEach(it => {
+        const row = document.createElement("div");
+        row.className = "item" + (it.kind === "homework" ? " hw" : "");
+        row.innerHTML = '<div class="t mono">' + it.time + (it.kind === "homework" ? " · ödev hatırlatıcısı" : "") + '</div><div>' + it.code + " — " + it.name + '</div>';
+        col.appendChild(row);
+      });
+      grid.appendChild(col);
+    });
+  }
+
+  // ---- today tab ----
+  function docId(dateIso, slotId) { return dateIso + "_" + slotId; }
+
+  async function loadDayCache(dateIso) {
+    dayCache = {};
+    if (!db) return;
+    try {
+      const snap = await db.collection("reviews").where("date", "==", dateIso).get();
+      snap.docs.forEach(d => { const v = d.data(); dayCache[v.slotId] = v; });
+    } catch (e) { /* leave cache empty, inputs still usable this session */ }
+  }
+
+  function flashSaved(cardEl) {
+    const flag = cardEl.querySelector(".savedflag");
+    flag.classList.add("show");
+    clearTimeout(flag._t);
+    flag._t = setTimeout(() => flag.classList.remove("show"), 1400);
+  }
+
+  async function saveEntry(item, dateIso, done, note, cardEl) {
+    dayCache[item.id] = { date: dateIso, slotId: item.id, kind: item.kind, course: item.code, courseName: item.name, note, done, updatedAt: new Date().toISOString() };
+    if (!db) return;
+    try {
+      await db.collection("reviews").doc(docId(dateIso, item.id)).set(dayCache[item.id]);
+      flashSaved(cardEl);
+    } catch (e) { /* silent: next successful save will reconcile */ }
+  }
+
+  function buildCard(item, dateIso) {
+    const saved = dayCache[item.id] || {};
+    const card = document.createElement("div");
+    const isHomework = item.kind === "homework";
+    card.className = "card" + (isHomework ? " homework" : (saved.done ? " done-review" : ""));
+
+    const noteLabel = isHomework ? "Not (opsiyonel)" : "Bugün hangi konuyu tekrar ettin?";
+    const checkLabel = isHomework ? "Ödevi yükledim" : "Tekrar edildi";
+    const kicker = isHomework ? '<div class="kicker">📌 Bu saatte ders yok — yalnızca ödev hatırlatıcısı</div>' : "";
+
+    card.innerHTML =
+      '<span class="savedflag">Kaydedildi ✓</span>' +
+      kicker +
+      '<div class="row1"><div class="course">' + item.code + ' <span class="name">' + item.name + '</span></div><div class="time mono">' + item.time + '</div></div>' +
+      '<div class="meta">' + item.room + ' · ' + item.instructor + '</div>' +
+      '<div class="checkline"><input type="checkbox" id="chk-' + item.id + '"' + (saved.done ? " checked" : "") + '><label for="chk-' + item.id + '">' + checkLabel + '</label></div>' +
+      '<textarea class="note" placeholder="' + noteLabel + '" id="note-' + item.id + '">' + (saved.note || "") + '</textarea>';
+
+    const chk = card.querySelector("input");
+    const note = card.querySelector("textarea");
+    chk.addEventListener("change", () => {
+      card.classList.toggle("done-review", chk.checked && !isHomework);
+      saveEntry(item, dateIso, chk.checked, note.value, card);
+    });
+    let debounceT;
+    note.addEventListener("input", () => {
+      clearTimeout(debounceT);
+      debounceT = setTimeout(() => saveEntry(item, dateIso, chk.checked, note.value, card), 700);
+    });
+    note.addEventListener("blur", () => { clearTimeout(debounceT); saveEntry(item, dateIso, chk.checked, note.value, card); });
+
+    return card;
+  }
+
+  async function renderToday() {
+    const dow = selectedDate.getDay();
+    document.getElementById("curWeekday").textContent = WEEKDAY_TR[dow];
+    document.getElementById("curDaynum").textContent = fmtLong(selectedDate);
+
+    const key = DOW_KEY[dow];
+    const holder = document.getElementById("dayItems");
+    holder.innerHTML = "";
+
+    if (!key) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML = "Bu gün ders yok, tekrar edecek bir şey görünmüyor.<br><button id='goMonday'>Pazartesiye git</button>";
+      holder.appendChild(empty);
+      empty.querySelector("#goMonday").addEventListener("click", () => {
+        const d = new Date(selectedDate);
+        do { d.setDate(d.getDate() + 1); } while (!DOW_KEY[d.getDay()]);
+        selectedDate = d; renderToday();
+      });
+      return;
+    }
+
+    const dateIso = isoDate(selectedDate);
+    await loadDayCache(dateIso);
+    SCHEDULE[key].items.forEach(item => holder.appendChild(buildCard(item, dateIso)));
+  }
+
+  document.getElementById("prevDay").addEventListener("click", () => { selectedDate.setDate(selectedDate.getDate() - 1); renderToday(); });
+  document.getElementById("nextDay").addEventListener("click", () => { selectedDate.setDate(selectedDate.getDate() + 1); renderToday(); });
+  document.getElementById("jumpToday").addEventListener("click", () => { selectedDate = new Date(); renderToday(); });
+
+  // ---- history tab ----
+  async function loadHistory() {
+    const holder = document.getElementById("histList");
+    if (!db) { holder.innerHTML = '<div class="empty">Geçmiş kayıtlar bu görünümde kullanılamıyor.</div>'; return; }
+    holder.innerHTML = '<div class="empty">Yükleniyor…</div>';
+    try {
+      const snap = await db.collection("reviews").where("done", "==", true).orderBy("date", "desc").limit(60).get();
+      if (snap.empty) { holder.innerHTML = '<div class="empty">Henüz tamamlanmış bir tekrar kaydı yok.</div>'; return; }
+      holder.innerHTML = "";
+      let lastDate = null;
+      snap.docs.forEach(d => {
+        const v = d.data();
+        if (v.date !== lastDate) {
+          lastDate = v.date;
+          const dEl = document.createElement("div");
+          dEl.className = "hist-date";
+          const parts = v.date.split("-").map(Number);
+          const dt = new Date(parts[0], parts[1] - 1, parts[2]);
+          dEl.textContent = WEEKDAY_TR[dt.getDay()] + ", " + fmtLong(dt);
+          holder.appendChild(dEl);
+        }
+        const entry = document.createElement("div");
+        entry.className = "hist-entry" + (v.kind === "homework" ? " hw" : "");
+        entry.innerHTML = '<div class="hc">' + (v.course || "") + (v.courseName ? " — " + v.courseName : "") + (v.kind === "homework" ? " · ödev yüklendi" : "") + '</div>' +
+          '<div class="hn">' + (v.note ? v.note : (v.kind === "homework" ? "Not eklenmedi." : "Konu notu girilmedi.")) + '</div>';
+        holder.appendChild(entry);
+      });
+    } catch (e) {
+      holder.innerHTML = '<div class="empty">Geçmiş yüklenemedi, tekrar deneyin.</div>';
+    }
+  }
+  document.getElementById("refreshHist").addEventListener("click", loadHistory);
+
+  // ---- boot ----
+  async function boot() {
+    renderToday();
+    try {
+      if (window.claude && window.claude.use) {
+        db = await window.claude.use("db");
+      }
+    } catch (e) { db = null; }
+    dbReady = true;
+    const banner = document.getElementById("db-banner");
+    if (!db) {
+      banner.innerHTML = '<div class="banner">Kayıt defteri şu an bu görünümde bağlı değil — işaretlemeler yalnızca bu oturumda tutulacak.</div>';
+    }
+    renderToday();
+  }
+  boot();
+})();
+</script>
